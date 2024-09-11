@@ -1,0 +1,1 @@
+Learn more about TextInput -> https://reactnative.dev/docs/textinput
