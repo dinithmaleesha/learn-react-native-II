@@ -1,39 +1,63 @@
-import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { Alert, FlatList, Keyboard, StyleSheet, Text, TouchableWithoutFeedback, View, } from 'react-native';
+import Header from './components/header';
+import TodoItems from './components/todoItem';
+import AddTodo from './components/addTodo';
+import Sandbox from './components/sandbox';
 
 export default function App() {
-  const [people, setPeople] = useState([
-    { name: 'shaun', id: '1' },
-    { name: 'dinith', id: '2' },
-    { name: 'maleesha', id: '3' },
-    { name: 'mario', id: '4' },
-    { name: 'yoshi', id: '5' },
-    { name: 'john', id: '6' },
-    { name: 'price', id: '7' },
-    { name: 'doe', id: '8' },
-  ]);
 
-  const pressHandler = (id) => {
-    console.log(id);
-    setPeople((prevPeople) => {
-      return prevPeople.filter(person => person.id != id)
+  const [todos, setTodos] = useState([
+    { text: 'Buy a coffee', key: '1' },
+    { text: 'Create an app', key: '2' },
+    { text: 'Play on the switch', key: '3' },
+    { text: 'Learn React', key: '4' },
+  ])
+
+  const pressHandler = (key) => {
+    setTodos((prevTodos) => {
+      return prevTodos.filter(todo => todo.key != key)
     })
   }
 
+  const submitHandler = (text) => {
+    if (text.length > 3) {
+      setTodos((prevTodos) => {
+        return [
+          { text: text, key: Math.random().toString() },
+          ...prevTodos
+        ]
+      })
+    } else {
+      Alert.alert('OOPS!', 'Todos must be over 3 chars long', [{
+        text: 'Understood', onPress: () => console.log('alert closed')
+      }])
+    }
+
+  }
+
   return (
-    <View style={styles.container}>
-      <FlatList
-        numColumns={(2)}
-        keyExtractor={(item) => item.id}
-        data={people}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => { pressHandler(item.id) }}>
-            <Text style={styles.item}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
+    // <Sandbox/>
+    <TouchableWithoutFeedback onPress={() => {
+      Keyboard.dismiss()
+    }}>
+      <View style={styles.container}>
+      {/* header */}
+      <Header />
+      <View style={styles.content}>
+        {/* to do form */}
+        <AddTodo submitHandler={submitHandler} />
+        <View style={styles.list}>
+          <FlatList
+            data={todos}
+            renderItem={({ item }) => (
+              <TodoItems item={item} pressHandler={pressHandler} />
+            )}
+          />
+        </View>
+      </View>
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -41,15 +65,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 40,
-    paddingHorizontal: 20,
   },
-  item: {
-    marginTop: 24,
-    padding: 30,
-    backgroundColor: 'pink',
-    fontSize: 24,
-    marginHorizontal: 10,
-    marginTop: 24
+  content: {
+    flex: 1,
+    padding: 40,
+  },
+  list: {
+    flex: 1,
+    marginTop: 20,
   }
 });
